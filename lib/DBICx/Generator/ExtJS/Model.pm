@@ -233,7 +233,7 @@ sub extjs_model {
         # print Dumper($relinfo);
         print
             "\t\tskipping because multi-cond rels aren't supported by ExtJS 4\n"
-            if keys $relinfo->{cond} > 1;
+            if keys %{$relinfo->{cond}} > 1;
 
         my $attrs = $relinfo->{attrs};
 
