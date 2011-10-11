@@ -136,10 +136,20 @@ diag("non-existing dir is $non_existing_dirname");
 throws_ok { $generator->extjs_model_to_file( 'Another', $non_existing_dirname ) }
 qr/directory doesn't exist/, "non existing output directory throws ok";
 
-my $dir = File::Temp->newdir;
-my $dirname = $dir->dirname;
-diag("writing 'Another' to $dirname");
-lives_ok { $generator->extjs_model_to_file( 'Another', $dirname ) }
-"file generation of 'Another' successful";
+{
+    my $dir = File::Temp->newdir;
+    my $dirname = $dir->dirname;
+    diag("writing 'Another' to $dirname");
+    lives_ok { $generator->extjs_model_to_file( 'Another', $dirname ) }
+    "file generation of 'Another' ok";
+}
+
+{
+    my $dir = File::Temp->newdir;
+    my $dirname = $dir->dirname;
+    diag("writing all models to $dirname");
+    lives_ok { $generator->extjs_models_to_file( $dirname ) }
+    "file generation of all models ok";
+}
 
 done_testing;

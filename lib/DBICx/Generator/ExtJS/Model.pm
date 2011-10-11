@@ -31,6 +31,8 @@ DBICx::Generator::ExtJS::Model - ExtJS model producer
 
     $generator->extjs_model_to_file( 'Foo', '/my/dir/' );
 
+    $generator->extjs_models_to_file( '/my/dir/' );
+
 =head1 DESCRIPTION
 
 Creates ExtJS model classes.
@@ -360,6 +362,22 @@ sub extjs_model_to_file {
             . $self->_json->indent(0)->encode($extjs_model_name) . ', '
             . $self->_json->indent(1)->encode($extjs_model_code)
             . ');' );
+}
+
+=item extjs_models_to_file
+
+This method takes a directory name and outputs the generated ExtJS model
+classes to a file per model according to ExtJS naming standards.
+
+=cut
+
+sub extjs_models_to_file {
+    my ( $self, $dirname ) = @_;
+
+    my $schema = $self->schema;
+
+    $self->extjs_model_to_file($_, $dirname)
+        for $schema->sources;
 }
 
 =back
