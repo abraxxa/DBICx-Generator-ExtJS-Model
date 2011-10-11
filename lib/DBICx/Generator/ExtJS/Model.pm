@@ -43,6 +43,8 @@ ExtJS model documentation.
 
 use Moose;
 use JSON;
+use Path::Class;
+use Fcntl qw( O_CREAT O_WRONLY O_EXCL );
 use namespace::autoclean;
 
 has 'schema' => (
@@ -62,6 +64,7 @@ sub _build__json {
 
     my $json = JSON->new;
     $json->$_( $self->get_json_arg($_) ) for $self->json_arg_keys;
+    $json->allow_nonref(1);
 
     return $json;
 }
@@ -327,10 +330,33 @@ sub extjs_models {
     return \%output;
 }
 
-# return map {
-# "Ext.define('$_', "
-# . $json->encode( $tableoutput{$_} ) . ");\n"
-# } keys %tableoutput;
+=item extjs_model_to_file
+
+This method takes a single DBIx::Class::ResultSource name and a directory name
+and outputs the generated ExtJS model class to a file according to ExtJS
+naming standards.
+An error is thrown if the directory doesn't exist or if the file already
+exists.
+
+=cut
+
+sub extjs_model_to_file {
+    my ( $self, $rsrcname, $dirname ) = @_;
+
+    my $dir = Path::Class::Dir->new($dirname);
+    $dir->open or die "directory doesn't exist";
+
+    my ( $extjs_model_name, $extjs_model_code ) =
+        @{$self->extjs_model($rsrcname)};
+
+    my $file = $dir->file("$extjs_model_name.js");
+    my $fh = $file->open(O_CREAT|O_WRONLY|O_EXCL)
+        or die "$file already exists";
+    $fh->write( 'Ext.define('
+            . $self->_json->indent(0)->encode($extjs_model_name) . ', '
+            . $self->_json->indent(1)->encode($extjs_model_code)
+            . ');' );
+}
 
 =back
 

@@ -4,8 +4,9 @@ use warnings;
 use Test::More;
 use Test::Exception;
 use Test::Differences;
-use lib 't/lib';
+use File::Temp ();
 use DBICx::Generator::ExtJS::Model;
+use lib 't/lib';
 use My::Schema;
 
 my $schema = My::Schema->connect;
@@ -16,7 +17,7 @@ my $generator = DBICx::Generator::ExtJS::Model->new(
         space_after => 1,
         indent      => 1,
     },
-    extjs_args => { extend => 'MyApp.data.Model', },
+    extjs_args => { extend => 'MyApp.data.Model' },
 );
 
 my $extjs_model_for_another;
@@ -126,5 +127,19 @@ eq_or_diff(
     },
     "extjs_models output ok"
 );
+
+# this creates a File::Temp object which immediatly goes out of scope and
+# results in deleting of the dir
+my $non_existing_dirname = File::Temp->newdir->dirname;
+
+diag("non-existing dir is $non_existing_dirname");
+throws_ok { $generator->extjs_model_to_file( 'Another', $non_existing_dirname ) }
+qr/directory doesn't exist/, "non existing output directory throws ok";
+
+my $dir = File::Temp->newdir;
+my $dirname = $dir->dirname;
+diag("writing 'Another' to $dirname");
+lives_ok { $generator->extjs_model_to_file( 'Another', $dirname ) }
+"file generation of 'Another' successful";
 
 done_testing;
