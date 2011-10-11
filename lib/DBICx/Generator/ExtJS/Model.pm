@@ -1,17 +1,18 @@
 package DBICx::Generator::ExtJS::Model;
 
-#ABSTRACT: ExtJS model file producer
+#ABSTRACT: ExtJS model producer
 
 =head1 NAME
 
-DBICx::Generator::ExtJS::Model - ExtJS model file producer
+DBICx::Generator::ExtJS::Model - ExtJS model producer
 
 =head1 SYNOPSIS
 
     use DBICx::Generator::ExtJS::Model;
-    use My::DBIC::Schema;
+    use lib 't/lib';
+    use My::Schema;
 
-    my $schema = My::DBIC::Schema->connect;
+    my $schema = My::Schema->connect;
 
     my $generator = DBICx::Generator::ExtJS::Model->new(
         schema => $schema,
@@ -172,8 +173,9 @@ sub extjs_model_name {
 
 =item extjs_model
 
-This method returns an arrayref containing the parameters that are serialized
-to JSON and then passed to Ext.define for one DBIx::Class::ResultSource.
+This method returns an arrayref containing the parameters that can be
+serialized to JSON and then passed to Ext.define for one
+DBIx::Class::ResultSource.
 
 =cut
 
@@ -236,7 +238,7 @@ sub extjs_model {
         # print Dumper($relinfo);
         print
             "\t\tskipping because multi-cond rels aren't supported by ExtJS 4\n"
-            if keys %{$relinfo->{cond}} > 1;
+            if keys %{ $relinfo->{cond} } > 1;
 
         my $attrs = $relinfo->{attrs};
 
