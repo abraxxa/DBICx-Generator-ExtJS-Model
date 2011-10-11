@@ -29,6 +29,8 @@ DBICx::Generator::ExtJS::Model - ExtJS model producer
 
     my @extjs_models = $generator->extjs_models;
 
+    $generator->extjs_model_to_file( 'Foo', '/my/dir/' );
+
 =head1 DESCRIPTION
 
 Creates ExtJS model classes.
