@@ -170,7 +170,7 @@ in a subclass.
 =cut
 
 sub extjs_model_name {
-    my $tablename = shift;
+    my ( $self, $tablename ) = @_;
     $tablename = $tablename =~ m/^(?:\w+::)* (\w+)$/x ? $1 : $tablename;
     return ucfirst($tablename);
 }
@@ -188,7 +188,7 @@ sub extjs_model {
     my $schema = $self->schema;
 
     my $rsrc      = $schema->source($rsrcname);
-    my $extjsname = extjs_model_name($rsrcname);
+    my $extjsname = $self->extjs_model_name($rsrcname);
 
     #print "resultsource: $rsrcname -> $extjsname\n";
     my $columns_info = $rsrc->columns_info;
@@ -267,8 +267,9 @@ sub extjs_model {
         $our_col =~ s/^self\.//;
         my $extjs_rel = {
             associationKey => $relname,
-            model          => extjs_model_name( $relinfo->{source} )
-            ,    # class instead of source?
+
+            # class instead of source?
+            model      => $self->extjs_model_name( $relinfo->{source} ),
             primaryKey => $rel_col,
             foreignKey => $our_col,
         };
