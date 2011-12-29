@@ -16,9 +16,10 @@ DBICx::Generator::ExtJS::Model - ExtJS model producer
 
     my $generator = DBICx::Generator::ExtJS::Model->new(
         schema => $schema,
+        # this are the default args passed to JSON::DWIW->new
         json_args => {
-            space_after => 1,
-            indent      => 1,
+            bare_keys => 1,
+            pretty    => 1,
         },
         extjs_args => {
             extend => 'MyApp.data.Model',
@@ -47,7 +48,7 @@ ExtJS model documentation.
 =cut
 
 use Moose;
-use JSON;
+use JSON::DWIW;
 use Path::Class;
 use Fcntl qw( O_CREAT O_WRONLY O_EXCL );
 use namespace::autoclean;
@@ -60,27 +61,23 @@ has 'schema' => (
 
 has '_json' => (
     is         => 'ro',
-    isa        => 'JSON',
+    isa        => 'JSON::DWIW',
     lazy_build => 1,
 );
 
 sub _build__json {
     my $self = shift;
 
-    my $json = JSON->new;
-    $json->$_( $self->get_json_arg($_) ) for $self->json_arg_keys;
-    $json->allow_nonref(1);
-
-    return $json;
+    return JSON::DWIW->new( $self->json_args );
 }
 
 has 'json_args' => (
     is      => 'ro',
     isa     => 'HashRef',
-    traits  => ['Hash'],
-    handles => {
-        json_arg_keys => 'keys',
-        get_json_arg  => 'get',
+    default => sub {
+        {   bare_keys => 1,
+            pretty    => 1,
+        };
     },
 );
 
@@ -359,9 +356,10 @@ sub extjs_model_to_file {
     my $file = $dir->file("$extjs_model_name.js");
     my $fh = $file->open(O_CREAT|O_WRONLY|O_EXCL)
         or die "$file already exists";
+
     $fh->write( 'Ext.define('
-            . $self->_json->indent(0)->encode($extjs_model_name) . ', '
-            . $self->_json->indent(1)->encode($extjs_model_code)
+            . $self->_json->to_json($extjs_model_name) . ', '
+            . $self->_json->to_json($extjs_model_code)
             . ');' );
 }
 
