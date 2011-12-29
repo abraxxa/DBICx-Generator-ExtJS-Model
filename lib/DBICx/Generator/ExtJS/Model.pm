@@ -353,14 +353,16 @@ sub extjs_model_to_file {
     my ( $extjs_model_name, $extjs_model_code ) =
         @{$self->extjs_model($rsrcname)};
 
+    my $json =
+        'Ext.define('
+        . $self->_json->to_json($extjs_model_name) . ', '
+        . $self->_json->to_json($extjs_model_code) . ');';
+
     my $file = $dir->file("$extjs_model_name.js");
     my $fh = $file->open(O_CREAT|O_WRONLY|O_EXCL)
         or die "$file already exists";
 
-    $fh->write( 'Ext.define('
-            . $self->_json->to_json($extjs_model_name) . ', '
-            . $self->_json->to_json($extjs_model_code)
-            . ');' );
+    $fh->write($json);
 }
 
 =item extjs_models_to_file
