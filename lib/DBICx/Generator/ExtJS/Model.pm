@@ -287,6 +287,11 @@ sub extjs_model {
             $extjs_rel->{type} = 'belongsTo';
         }
 
+        # HasOne
+        elsif ( $attrs->{accessor} eq 'single' ) {
+            $extjs_rel->{type} = 'hasOne';
+        }
+
         #$VAR1 = {
         #    'cond' => {
         #        'foreign.fk_fw_request' => 'self.id_fw_request'
