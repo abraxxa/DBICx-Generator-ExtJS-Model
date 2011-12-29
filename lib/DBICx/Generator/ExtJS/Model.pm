@@ -15,7 +15,8 @@ DBICx::Generator::ExtJS::Model - ExtJS model producer
     my $schema = My::Schema->connect;
 
     my $generator = DBICx::Generator::ExtJS::Model->new(
-        schema => $schema,
+        schema  => $schema,
+        appname => 'MyApp',
         # this are the default args passed to JSON::DWIW->new
         json_args => {
             bare_keys => 1,
@@ -56,6 +57,12 @@ use namespace::autoclean;
 has 'schema' => (
     is       => 'ro',
     isa      => 'DBIx::Class::Schema',
+    required => 1,
+);
+
+has 'appname' => (
+    is       => 'ro',
+    isa      => 'Str',
     required => 1,
 );
 
@@ -355,7 +362,9 @@ sub extjs_model_to_file {
 
     my $json =
         'Ext.define('
-        . $self->_json->to_json($extjs_model_name) . ', '
+        . $self->_json->to_json(
+        $self->appname . '.model.' . $extjs_model_name )
+        . ', '
         . $self->_json->to_json($extjs_model_code) . ');';
 
     my $file = $dir->file("$extjs_model_name.js");
