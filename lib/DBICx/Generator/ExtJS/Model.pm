@@ -339,7 +339,6 @@ sub extjs_models {
     foreach my $rsrcname ( $schema->sources ) {
         my $extjs_model = $self->extjs_model($rsrcname);
 
-        # yes, this is ugly but saves calling extjs_model_name another time
         $output{ $extjs_model->[0] } = $extjs_model;
     }
 
@@ -363,7 +362,7 @@ sub extjs_model_to_file {
     $dir->open or die "directory doesn't exist";
 
     my ( $extjs_model_name, $extjs_model_code ) =
-        @{$self->extjs_model($rsrcname)};
+        @{ $self->extjs_model($rsrcname) };
 
     my $json =
         'Ext.define('
@@ -373,7 +372,7 @@ sub extjs_model_to_file {
         . $self->_json->to_json($extjs_model_code) . ');';
 
     my $file = $dir->file("$extjs_model_name.js");
-    my $fh = $file->open(O_CREAT|O_WRONLY|O_EXCL)
+    my $fh   = $file->open( O_CREAT | O_WRONLY | O_EXCL )
         or die "$file already exists";
 
     $fh->write($json);
@@ -391,8 +390,7 @@ sub extjs_models_to_file {
 
     my $schema = $self->schema;
 
-    $self->extjs_model_to_file($_, $dirname)
-        for $schema->sources;
+    $self->extjs_model_to_file( $_, $dirname ) for $schema->sources;
 }
 
 =back
